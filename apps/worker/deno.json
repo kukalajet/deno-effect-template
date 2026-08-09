@@ -1,0 +1,7 @@
+{
+  "name": "@deno-effect/worker",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./src/main.ts"
+  }
+}

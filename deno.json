@@ -1,0 +1,60 @@
+{
+  "workspace": [
+    "./apps/api",
+    "./apps/worker",
+    "./packages/config",
+    "./packages/database",
+    "./packages/domain"
+  ],
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@effect/platform-deno/DenoHttpServer": "npm:@effect/platform-deno@4.0.0-beta.106/DenoHttpServer",
+    "@effect/platform-deno/DenoRuntime": "npm:@effect/platform-deno@4.0.0-beta.106/DenoRuntime",
+    "@effect/sql-pg": "npm:@effect/sql-pg@4.0.0-beta.106",
+    "@types/pg": "npm:@types/pg@8.21.0",
+    "drizzle-kit": "npm:drizzle-kit@1.0.0-rc.4",
+    "drizzle-orm": "npm:drizzle-orm@1.0.0-rc.4",
+    "drizzle-orm/effect-core": "npm:drizzle-orm@1.0.0-rc.4/effect-core",
+    "drizzle-orm/effect-postgres": "npm:drizzle-orm@1.0.0-rc.4/effect-postgres",
+    "drizzle-orm/effect-schema": "npm:drizzle-orm@1.0.0-rc.4/effect-schema",
+    "drizzle-orm/pg-core": "npm:drizzle-orm@1.0.0-rc.4/pg-core",
+    "effect": "npm:effect@4.0.0-beta.106",
+    "effect/unstable/http": "npm:effect@4.0.0-beta.106/unstable/http",
+    "pg": "npm:pg@8.23.0"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "useUnknownInCatchVariables": true
+  },
+  "fmt": {
+    "exclude": ["./drizzle"]
+  },
+  "lint": {
+    "exclude": ["./drizzle"],
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "tasks": {
+    "setup": "deno install --allow-scripts=npm:esbuild && deno task patch:drizzle",
+    "patch:drizzle": "deno run --allow-read=node_modules --allow-write=node_modules scripts/patch-drizzle.ts",
+    "dev:api": "deno run --watch --env-file=.env --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=127.0.0.1:5432,localhost:5432,127.0.0.1:8000,localhost:8000 apps/api/src/main.ts",
+    "start:api": "deno run --env-file=.env --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=127.0.0.1:5432,localhost:5432,127.0.0.1:8000,localhost:8000 apps/api/src/main.ts",
+    "dev:worker": "deno run --watch --env-file=.env --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=127.0.0.1:5432,localhost:5432 apps/worker/src/main.ts",
+    "start:worker": "deno run --env-file=.env --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=127.0.0.1:5432,localhost:5432 apps/worker/src/main.ts",
+    "db:generate": "deno run -A npm:drizzle-kit@1.0.0-rc.4 generate --config=drizzle.config.ts",
+    "db:migrate": "deno run -A npm:drizzle-kit@1.0.0-rc.4 migrate --config=drizzle.config.ts",
+    "db:check": "deno run -A npm:drizzle-kit@1.0.0-rc.4 check --config=drizzle.config.ts",
+    "db:studio": "deno run -A npm:drizzle-kit@1.0.0-rc.4 studio --config=drizzle.config.ts",
+    "fmt": "deno fmt --check",
+    "lint": "deno lint",
+    "typecheck": "deno check apps/api/src/main.ts apps/api/src/app.test.ts apps/worker/src/main.ts packages/config/mod.ts packages/config/src/app-config.test.ts packages/database/mod.ts packages/domain/mod.ts packages/domain/src/user.test.ts drizzle.config.ts",
+    "test": "deno test",
+    "check": "deno task fmt && deno task lint && deno task typecheck && deno task test"
+  }
+}

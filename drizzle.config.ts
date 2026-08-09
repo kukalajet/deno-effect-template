@@ -1,0 +1,16 @@
+import { defineConfig } from "drizzle-kit";
+
+const databaseUrl = Deno.env.get("DATABASE_URL");
+
+if (databaseUrl === undefined) {
+  throw new Error("DATABASE_URL is required to run Drizzle Kit");
+}
+
+export default defineConfig({
+  dialect: "postgresql",
+  out: "./drizzle",
+  schema: "./packages/database/src/schema.ts",
+  dbCredentials: {
+    url: databaseUrl,
+  },
+});
