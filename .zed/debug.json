@@ -1,0 +1,47 @@
+[
+  {
+    "label": "Debug API",
+    "adapter": "JavaScript",
+    "request": "launch",
+    "type": "pwa-node",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "program": "apps/api/src/main.ts",
+    "runtimeExecutable": "deno",
+    "runtimeArgs": [
+      "run",
+      "--inspect-wait",
+      "--env-file=.env",
+      "--allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION",
+      "--allow-net=127.0.0.1:5432,localhost:5432,127.0.0.1:8000,localhost:8000"
+    ],
+    "attachSimplePort": 9229
+  },
+  {
+    "label": "Debug Worker",
+    "adapter": "JavaScript",
+    "request": "launch",
+    "type": "pwa-node",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "program": "apps/worker/src/main.ts",
+    "runtimeExecutable": "deno",
+    "runtimeArgs": [
+      "run",
+      "--inspect-wait=127.0.0.1:9230",
+      "--env-file=.env",
+      "--allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION",
+      "--allow-net=127.0.0.1:5432,localhost:5432"
+    ],
+    "attachSimplePort": 9230
+  },
+  {
+    "label": "Debug tests (current file)",
+    "adapter": "JavaScript",
+    "request": "launch",
+    "type": "pwa-node",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "program": "$ZED_FILE",
+    "runtimeExecutable": "deno",
+    "runtimeArgs": ["test", "--inspect-wait=127.0.0.1:9231"],
+    "attachSimplePort": 9231
+  }
+]
