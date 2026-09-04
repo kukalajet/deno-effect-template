@@ -9,4 +9,6 @@ const health = Effect.gen(function* () {
   return HttpServerResponse.jsonUnsafe({ status: "ok", database: "ok" });
 }).pipe(Effect.catchTag("UserRepositoryError", healthFailure));
 
-export const HealthRoutes = HttpRouter.add("GET", "/health", health);
+const HealthRoutes = HttpRouter.add("GET", "/health", health);
+
+export { HealthRoutes };

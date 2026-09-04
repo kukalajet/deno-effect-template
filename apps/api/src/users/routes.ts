@@ -51,8 +51,10 @@ const createUser = Effect.gen(function* () {
   }),
 );
 
-export const UserRoutes = HttpRouter.addAll([
+const UserRoutes = HttpRouter.addAll([
   HttpRouter.route("GET", "/users", listUsers),
   HttpRouter.route("GET", "/users/:id", findUser),
   HttpRouter.route("POST", "/users", createUser),
 ]);
+
+export { UserRoutes };

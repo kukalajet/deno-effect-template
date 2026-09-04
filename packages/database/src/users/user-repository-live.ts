@@ -26,7 +26,7 @@ const isUserEmailConflict = (
     reason.constraint === userEmailUniqueConstraint;
 };
 
-export const toUserInsertError = (
+const toUserInsertError = (
   email: EmailType,
   cause: EffectDrizzleQueryError,
 ) =>
@@ -88,7 +88,9 @@ const makeUserRepository = Effect.gen(function* () {
   return UserRepository.of({ health, insert, findById, list });
 });
 
-export const UserRepositoryPostgresLive = Layer.effect(
+const UserRepositoryPostgresLive = Layer.effect(
   UserRepository,
   makeUserRepository,
 );
+
+export { toUserInsertError, UserRepositoryPostgresLive };

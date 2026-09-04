@@ -6,7 +6,7 @@ if (databaseUrl === undefined) {
   throw new Error("DATABASE_URL is required to run Drizzle Kit");
 }
 
-export default defineConfig({
+const config = defineConfig({
   dialect: "postgresql",
   out: "./drizzle",
   schema: "./packages/database/src/users/schema.ts",
@@ -14,3 +14,5 @@ export default defineConfig({
     url: databaseUrl,
   },
 });
+
+export { config as default };

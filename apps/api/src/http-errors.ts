@@ -2,13 +2,13 @@ import type { UserRepositoryError } from "@deno-effect/application";
 import { Effect } from "effect";
 import { HttpServerResponse } from "effect/unstable/http";
 
-export const jsonError = (status: number, code: string, message: string) =>
+const jsonError = (status: number, code: string, message: string) =>
   HttpServerResponse.jsonUnsafe({ error: { code, message } }, { status });
 
-export const badRequest = () =>
+const badRequest = () =>
   jsonError(400, "INVALID_REQUEST", "The request payload is invalid");
 
-export const databaseFailure = (error: UserRepositoryError) =>
+const databaseFailure = (error: UserRepositoryError) =>
   Effect.logError("Database operation failed").pipe(
     Effect.annotateLogs({
       errorTag: error._tag,
@@ -23,7 +23,7 @@ export const databaseFailure = (error: UserRepositoryError) =>
     ),
   );
 
-export const healthFailure = (error: UserRepositoryError) =>
+const healthFailure = (error: UserRepositoryError) =>
   Effect.logError("Database health check failed").pipe(
     Effect.annotateLogs({
       errorTag: error._tag,
@@ -33,3 +33,5 @@ export const healthFailure = (error: UserRepositoryError) =>
       jsonError(503, "DATABASE_UNAVAILABLE", "The database is unavailable"),
     ),
   );
+
+export { badRequest, databaseFailure, healthFailure, jsonError };

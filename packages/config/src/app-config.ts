@@ -7,7 +7,7 @@ import {
   Redacted,
 } from "effect";
 
-export const appConfig = Config.all({
+const appConfig = Config.all({
   databaseUrl: Config.redacted("DATABASE_URL"),
   apiHost: Config.nonEmptyString("API_HOST").pipe(
     Config.withDefault("127.0.0.1"),
@@ -32,7 +32,7 @@ const liveProvider = Effect.sync(() => {
   return ConfigProvider.fromEnv({ env: environment });
 });
 
-export class AppConfig extends Context.Service<AppConfig, {
+class AppConfig extends Context.Service<AppConfig, {
   readonly databaseUrl: Redacted.Redacted<string>;
   readonly apiHost: string;
   readonly apiPort: number;
@@ -45,3 +45,5 @@ export class AppConfig extends Context.Service<AppConfig, {
     ),
   );
 }
+
+export { AppConfig, appConfig };

@@ -6,6 +6,7 @@ to upstream commit
 [`e8c4880`](https://github.com/dmmulroy/anti-slop/commit/e8c4880471b23ab7f216fba7b27d173a6ef07d4c).
 The upstream project is MIT-licensed; see `LICENSE`.
 
-`index.ts` registers only the rules enabled by this repository. The Effect
-rule has one local customization: package aliases under `@deno-effect/*` count
-as project-local imports alongside relative paths.
+`index.ts` registers only the rules enabled by this repository. The
+`no-inline-exports` rule is repository-local. The Effect rule has one local
+customization: package aliases under `@deno-effect/*` count as project-local
+imports alongside relative paths.

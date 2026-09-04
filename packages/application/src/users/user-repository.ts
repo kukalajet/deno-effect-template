@@ -14,13 +14,13 @@ const repositoryOperations = [
   "list",
 ] as const;
 
-export class UserRepositoryError
+class UserRepositoryError
   extends Schema.TaggedError<UserRepositoryError>()("UserRepositoryError", {
     operation: Schema.Literals(repositoryOperations),
     cause: Schema.Defect(),
   }) {}
 
-export class UserRepository extends Context.Service<UserRepository, {
+class UserRepository extends Context.Service<UserRepository, {
   readonly health: Effect.Effect<void, UserRepositoryError>;
   readonly insert: (
     input: CreateUser,
@@ -32,3 +32,5 @@ export class UserRepository extends Context.Service<UserRepository, {
     limit?: number,
   ) => Effect.Effect<ReadonlyArray<User>, UserRepositoryError>;
 }>()("@deno-effect/application/UserRepository") {}
+
+export { UserRepository, UserRepositoryError };

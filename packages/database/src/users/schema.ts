@@ -5,9 +5,9 @@ import {
 } from "drizzle-orm/effect-schema";
 import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const userEmailUniqueConstraint = "users_email_key";
+const userEmailUniqueConstraint = "users_email_key";
 
-export const users = pgTable(
+const users = pgTable(
   "users",
   {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -20,14 +20,16 @@ export const users = pgTable(
   (table) => [index("users_created_at_idx").on(table.createdAt)],
 );
 
-export const UserRowSchema = createSelectSchema(users, {
+const UserRowSchema = createSelectSchema(users, {
   id: UserId,
   email: Email,
   displayName: DisplayName,
 });
 
-export const UserInsertRowSchema = createInsertSchema(users, {
+const UserInsertRowSchema = createInsertSchema(users, {
   id: UserId,
   email: Email,
   displayName: DisplayName,
 });
+
+export { userEmailUniqueConstraint, UserInsertRowSchema, UserRowSchema, users };
