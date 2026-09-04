@@ -11,6 +11,7 @@
     "@effect/platform-deno/DenoHttpServer": "npm:@effect/platform-deno@4.0.0-rc.112/DenoHttpServer",
     "@effect/platform-deno/DenoRuntime": "npm:@effect/platform-deno@4.0.0-rc.112/DenoRuntime",
     "@effect/sql-pg": "npm:@effect/sql-pg@4.0.0-rc.112",
+    "@oxlint/plugins": "npm:@oxlint/plugins@1.81.0",
     "@types/pg": "npm:@types/pg@8.23.1",
     "drizzle-kit": "npm:drizzle-kit@1.0.0-rc.4",
     "drizzle-orm": "npm:drizzle-orm@1.0.0-rc.4",
@@ -20,6 +21,7 @@
     "drizzle-orm/pg-core": "npm:drizzle-orm@1.0.0-rc.4/pg-core",
     "effect": "npm:effect@4.0.0-rc.112",
     "effect/unstable/http": "npm:effect@4.0.0-rc.112/unstable/http",
+    "oxlint": "npm:oxlint@1.81.0",
     "pg": "npm:pg@8.23.0"
   },
   "compilerOptions": {
@@ -32,10 +34,10 @@
     "useUnknownInCatchVariables": true
   },
   "fmt": {
-    "exclude": ["./drizzle"]
+    "exclude": ["./drizzle", "./tools/oxlint/anti-slop"]
   },
   "lint": {
-    "exclude": ["./drizzle"],
+    "exclude": ["./drizzle", "./tools/oxlint/anti-slop"],
     "rules": {
       "tags": ["recommended"]
     }
@@ -52,7 +54,8 @@
     "db:check": "deno run -A npm:drizzle-kit@1.0.0-rc.4 check --config=drizzle.config.ts",
     "db:studio": "deno run -A npm:drizzle-kit@1.0.0-rc.4 studio --config=drizzle.config.ts",
     "fmt": "deno fmt --check",
-    "lint": "deno lint",
+    "lint": "deno lint && deno task lint:anti-slop",
+    "lint:anti-slop": "deno run --allow-read=. --allow-env --allow-ffi oxlint .",
     "typecheck": "deno check apps/api/src/main.ts apps/api/src/app.test.ts apps/worker/src/main.ts packages/config/mod.ts packages/config/src/app-config.test.ts packages/database/mod.ts packages/domain/mod.ts packages/domain/src/user.test.ts drizzle.config.ts",
     "test": "deno test",
     "check": "deno task fmt && deno task lint && deno task typecheck && deno task test"

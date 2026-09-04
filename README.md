@@ -94,13 +94,24 @@ network allowlists.
 ```sh
 deno task fmt
 deno task lint
+deno task lint:anti-slop
 deno task typecheck
 deno task test
 deno task check
 ```
 
-`deno task check` runs formatting, linting, workspace type checking, and all
-unit/API tests in sequence and stops on the first failure.
+`deno task lint` runs Deno's recommended rules followed by the curated Anti-slop
+profile; use `lint:anti-slop` to run that second pass directly.
+`deno task check` runs formatting, both lint passes, workspace type checking,
+and all unit/API tests in sequence and stops on the first failure.
+
+The Anti-slop profile rejects chained assertions, widening followed by an
+assertion, undocumented non-const assertions, unsafe dictionary value types,
+module mocking, and importing Effect `make*` service constructors into runtime
+code. The Effect rule recognizes both relative imports and this workspace's
+`@deno-effect/*` aliases. Known-value widening is initially a warning. The
+selected upstream rules are vendored at commit `e8c4880`; the broader stylistic
+rules remain disabled.
 
 ## Exact dependency policy
 
@@ -108,6 +119,8 @@ unit/API tests in sequence and stops on the first failure.
 - `effect@4.0.0-rc.112`
 - `@effect/platform-deno@4.0.0-rc.112`
 - `@effect/sql-pg@4.0.0-rc.112`
+- `oxlint@1.81.0`
+- `@oxlint/plugins@1.81.0`
 - `drizzle-orm@1.0.0-rc.4`
 - `drizzle-kit@1.0.0-rc.4`
 - `pg@8.23.0`
@@ -132,10 +145,9 @@ and fails closed if the expected package signature changes. Remove the script
 and the `patch:drizzle` setup step as soon as a compatible Drizzle release is
 published. See the upstream [RC5 fix][drizzle-fix].
 
-Drizzle Kit's native Deno launcher requires a local npm dependency tree, so
-`nodeModulesDir` is set to `auto`. This is the only reason `node_modules` is
-enabled. The application still runs natively on Deno and does not use `npx` or
-`bunx`.
+Drizzle Kit's launcher and Oxlint's native binding require a local npm
+dependency tree, so `nodeModulesDir` is set to `auto`. The application and
+quality checks still run through Deno and do not use `npx` or `bunx`.
 
 The node-postgres compatibility layer probes several optional `PG*` variables,
 which explains the read-only environment names in the application tasks. An open
