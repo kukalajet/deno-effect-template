@@ -1,37 +1,11 @@
+import { UserRepository, UserRepositoryError } from "@deno-effect/application";
 import { UserNotFound } from "@deno-effect/domain";
 import { desc, eq, sql } from "drizzle-orm";
-import { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
-import { Context, Effect, Layer, Option, Schema } from "effect";
-import { Database, DatabaseLive } from "./layer.ts";
-import { type CreateUser, type User, users } from "./schema.ts";
+import { Effect, Layer, Option } from "effect";
+import { Database } from "../postgres.ts";
+import { users } from "./schema.ts";
 
-const repositoryOperations = [
-  "health",
-  "insert",
-  "findById",
-  "list",
-] as const;
-
-export class UserRepositoryError
-  extends Schema.TaggedError<UserRepositoryError>()("UserRepositoryError", {
-    operation: Schema.Literals(repositoryOperations),
-    cause: Schema.instanceOf(EffectDrizzleQueryError),
-  }) {}
-
-export class UserRepository extends Context.Service<UserRepository, {
-  readonly health: Effect.Effect<void, UserRepositoryError>;
-  readonly insert: (
-    input: CreateUser,
-  ) => Effect.Effect<User, UserRepositoryError>;
-  readonly findById: (
-    id: string,
-  ) => Effect.Effect<User, UserNotFound | UserRepositoryError>;
-  readonly list: (
-    limit?: number,
-  ) => Effect.Effect<ReadonlyArray<User>, UserRepositoryError>;
-}>()("@deno-effect/database/UserRepository") {}
-
-const makeRepository = Effect.gen(function* () {
+const makeUserRepository = Effect.gen(function* () {
   const database = yield* Database;
 
   const health = database.execute(sql`select 1`).pipe(
@@ -42,7 +16,7 @@ const makeRepository = Effect.gen(function* () {
   );
 
   const insert = Effect.fn("UserRepository.insert")(
-    function* (input: CreateUser) {
+    function* (input) {
       const rows = yield* database.insert(users).values(input).returning();
       return rows[0]!;
     },
@@ -86,7 +60,7 @@ const makeRepository = Effect.gen(function* () {
   return UserRepository.of({ health, insert, findById, list });
 });
 
-export const UserRepositoryLive = Layer.effect(
+export const UserRepositoryPostgresLive = Layer.effect(
   UserRepository,
-  makeRepository,
-).pipe(Layer.provide(DatabaseLive));
+  makeUserRepository,
+);

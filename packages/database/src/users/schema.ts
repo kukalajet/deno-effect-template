@@ -18,21 +18,14 @@ export const users = pgTable(
   (table) => [index("users_created_at_idx").on(table.createdAt)],
 );
 
-export const UserSchema = createSelectSchema(users, {
+export const UserRowSchema = createSelectSchema(users, {
   id: UserId,
   email: Email,
   displayName: DisplayName,
 });
 
-export const UserInsertSchema = createInsertSchema(users, {
+export const UserInsertRowSchema = createInsertSchema(users, {
   id: UserId,
   email: Email,
   displayName: DisplayName,
 });
-
-export const CreateUserSchema = UserInsertSchema.mapFields(
-  ({ displayName, email }) => ({ displayName, email }),
-);
-
-export type User = typeof UserSchema.Type;
-export type CreateUser = typeof CreateUserSchema.Type;

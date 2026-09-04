@@ -16,7 +16,7 @@ const rawDrizzleTypeIds = new Set([
   1231,
 ]);
 
-const PgClientLive = Layer.unwrap(
+export const PgClientLive = Layer.unwrap(
   AppConfig.pipe(
     Effect.map((config) =>
       PgClient.layer({
@@ -42,8 +42,4 @@ export class Database extends Context.Service<
   Effect.Success<typeof databaseEffect>
 >()("@deno-effect/database/Database") {}
 
-const DatabaseLive = Layer.effect(Database, databaseEffect).pipe(
-  Layer.provide(PgClientLive),
-);
-
-export { DatabaseLive, PgClientLive };
+export const DatabaseLive = Layer.effect(Database, databaseEffect);

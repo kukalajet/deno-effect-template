@@ -17,6 +17,20 @@ export type DisplayName = typeof DisplayName.Type;
 export const UserId = Schema.String.check(Schema.isUUID());
 export type UserId = typeof UserId.Type;
 
+export const CreateUserSchema = Schema.Struct({
+  email: Email,
+  displayName: DisplayName,
+});
+export type CreateUser = typeof CreateUserSchema.Type;
+
+export const UserSchema = Schema.Struct({
+  id: UserId,
+  email: Email,
+  displayName: DisplayName,
+  createdAt: Schema.Date,
+});
+export type User = typeof UserSchema.Type;
+
 export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
   "UserNotFound",
   { id: UserId },

@@ -4,9 +4,18 @@ Minimal, production-shaped backend workspace using Deno 2, Effect 4 RC,
 PostgreSQL, and Drizzle ORM v1's Effect-native PostgreSQL integration.
 
 `apps/api` owns the long-running HTTP boundary. `apps/worker` is a finite
-process that reuses the same services. Configuration, domain validation, and
-database infrastructure live under `packages`, keeping reusable code outside
-either executable.
+process that reuses the same services. Reusable domain rules, application
+contracts, configuration, and database adapters live under `packages`.
+
+## Architecture
+
+Packages are split by dependency boundary; code inside each application is
+grouped by feature. Routes and worker jobs depend on application contracts,
+database adapters implement those contracts, and each executable's `main.ts`
+assembles the concrete Effect layers.
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the dependency rules, directory
+layout, code-placement table, layer composition guidance, and testing examples.
 
 ## Prerequisites
 
