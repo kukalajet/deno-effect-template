@@ -28,6 +28,17 @@ is required.
 
 ## Setup
 
+Immediately after creating a repository from this template, initialize its
+project identity with a lowercase kebab-case name:
+
+```sh
+deno task init my-project
+```
+
+The initializer updates workspace package scopes, the PostgreSQL database and
+credentials, and the PostgreSQL client application name. Run it before making
+other changes to the generated repository.
+
 ```sh
 cp .env.example .env
 deno task setup
