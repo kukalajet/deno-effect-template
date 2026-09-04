@@ -1,6 +1,6 @@
 # Deno Effect backend template
 
-Minimal, production-shaped backend workspace using Deno 2, Effect 4 Beta,
+Minimal, production-shaped backend workspace using Deno 2, Effect 4 RC,
 PostgreSQL, and Drizzle ORM v1's Effect-native PostgreSQL integration.
 
 `apps/api` owns the long-running HTTP boundary. `apps/worker` is a finite
@@ -10,7 +10,7 @@ either executable.
 
 ## Prerequisites
 
-- Deno 2.9.5
+- Deno 2.9.6
 - Docker with Docker Compose
 - `curl` for the examples
 
@@ -104,17 +104,17 @@ unit/API tests in sequence and stops on the first failure.
 
 ## Exact dependency policy
 
-- Deno `2.9.5`
-- `effect@4.0.0-beta.106`
-- `@effect/platform-deno@4.0.0-beta.106`
-- `@effect/sql-pg@4.0.0-beta.106`
+- Deno `2.9.6`
+- `effect@4.0.0-rc.112`
+- `@effect/platform-deno@4.0.0-rc.112`
+- `@effect/sql-pg@4.0.0-rc.112`
 - `drizzle-orm@1.0.0-rc.4`
 - `drizzle-kit@1.0.0-rc.4`
 - `pg@8.23.0`
-- `@types/pg@8.21.0`
-- `postgres:18.4-alpine`
+- `@types/pg@8.23.1`
+- `postgres:18.6-alpine`
 
-The three Effect packages are pinned to the same beta; mixing Effect 4 beta
+The three Effect packages are pinned to the same RC; mixing Effect 4 prerelease
 levels is unsupported. Drizzle ORM and Kit use the same stable RC. The lockfile
 is committed so indirect npm resolution is reproducible.
 
