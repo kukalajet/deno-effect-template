@@ -1,6 +1,7 @@
-import type { UserRepositoryError } from "@deno-effect/application";
 import { Effect } from "effect";
 import { HttpServerResponse } from "effect/unstable/http";
+
+import type { UserRepositoryError } from "@deno-effect/application";
 
 const jsonError = (status: number, code: string, message: string) =>
   HttpServerResponse.jsonUnsafe({ error: { code, message } }, { status });

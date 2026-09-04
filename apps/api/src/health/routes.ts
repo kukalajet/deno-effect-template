@@ -1,6 +1,8 @@
-import { UserRepository } from "@deno-effect/application";
 import { Effect } from "effect";
 import { HttpRouter, HttpServerResponse } from "effect/unstable/http";
+
+import { UserRepository } from "@deno-effect/application";
+
 import { healthFailure } from "../http-errors.ts";
 
 const health = Effect.gen(function* () {

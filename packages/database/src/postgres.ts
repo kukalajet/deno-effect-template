@@ -1,8 +1,9 @@
 import { PgClient } from "@effect/sql-pg";
-import { AppConfig } from "@deno-effect/config";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
 import { Context, Effect, Layer } from "effect";
 import { types } from "pg";
+
+import { AppConfig } from "@deno-effect/config";
 
 const rawDrizzleTypeIds = new Set([
   1082,

@@ -1,14 +1,17 @@
+import { desc, eq, sql } from "drizzle-orm";
+import type { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
+import { Cause, Effect, Layer, Option } from "effect";
+import { SqlError } from "effect/unstable/sql";
+
 import { UserRepository, UserRepositoryError } from "@deno-effect/application";
 import {
   type EmailType,
   UserAlreadyExists,
   UserNotFound,
 } from "@deno-effect/domain";
-import { desc, eq, sql } from "drizzle-orm";
-import type { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
-import { Cause, Effect, Layer, Option } from "effect";
-import { SqlError } from "effect/unstable/sql";
+
 import { Database } from "../postgres.ts";
+
 import { userEmailUniqueConstraint, users } from "./schema.ts";
 
 const isUserEmailConflict = (

@@ -1,7 +1,9 @@
-import { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
 import { strictEqual } from "node:assert/strict";
+
+import { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
 import { Cause } from "effect";
 import { SqlError } from "effect/unstable/sql";
+
 import { toUserInsertError } from "./user-repository-live.ts";
 
 const uniqueViolation = (constraint: string) =>

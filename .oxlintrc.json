@@ -16,6 +16,7 @@
     }
   ],
   "rules": {
+    "anti-slop/import-order": "error",
     "anti-slop/no-chained-type-assertions": "error",
     "anti-slop/no-inline-exports": "error",
     "anti-slop/no-known-value-widening": "warn",

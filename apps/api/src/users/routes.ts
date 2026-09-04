@@ -1,11 +1,13 @@
-import { UserRepository } from "@deno-effect/application";
-import { CreateUserSchema, UserId } from "@deno-effect/domain";
 import { Effect, Schema } from "effect";
 import {
   HttpRouter,
   HttpServerRequest,
   HttpServerResponse,
 } from "effect/unstable/http";
+
+import { UserRepository } from "@deno-effect/application";
+import { CreateUserSchema, UserId } from "@deno-effect/domain";
+
 import { badRequest, databaseFailure, jsonError } from "../http-errors.ts";
 
 const listUsers = Effect.gen(function* () {

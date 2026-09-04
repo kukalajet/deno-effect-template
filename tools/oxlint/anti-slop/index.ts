@@ -1,5 +1,6 @@
 import { eslintCompatPlugin } from "@oxlint/plugins";
 
+import { importOrderRule } from "./rules/import-order.ts";
 import { noChainedTypeAssertionsRule } from "./rules/no-chained-type-assertions.ts";
 import { noInlineExportsRule } from "./rules/no-inline-exports.ts";
 import { noKnownValueWideningRule } from "./rules/no-known-value-widening.ts";
@@ -11,6 +12,7 @@ import { requireSafetyCommentForTypeAssertionRule } from "./rules/require-safety
 export default eslintCompatPlugin({
   meta: { name: "anti-slop" },
   rules: {
+    "import-order": importOrderRule,
     "no-chained-type-assertions": noChainedTypeAssertionsRule,
     "no-inline-exports": noInlineExportsRule,
     "no-known-value-widening": noKnownValueWideningRule,

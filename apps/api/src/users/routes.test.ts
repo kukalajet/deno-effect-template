@@ -1,12 +1,15 @@
+import { deepStrictEqual, strictEqual } from "node:assert/strict";
+
+import { Effect, Layer } from "effect";
+import { HttpRouter } from "effect/unstable/http";
+
 import { UserRepository } from "@deno-effect/application";
 import {
   type User,
   UserAlreadyExists,
   UserNotFound,
 } from "@deno-effect/domain";
-import { deepStrictEqual, strictEqual } from "node:assert/strict";
-import { Effect, Layer } from "effect";
-import { HttpRouter } from "effect/unstable/http";
+
 import { ApiRoutes } from "../app.ts";
 
 const userId = "d5b9d3de-fda5-4a78-b8a5-2f3b60634d95";

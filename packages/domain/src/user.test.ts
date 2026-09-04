@@ -1,6 +1,8 @@
-import { DisplayName, Email } from "@deno-effect/domain";
 import { strictEqual, throws } from "node:assert/strict";
+
 import { Schema } from "effect";
+
+import { DisplayName, Email } from "@deno-effect/domain";
 
 Deno.test("domain user schemas trim and validate input", () => {
   const decodeEmail = Schema.decodeUnknownSync(Email);

@@ -1,3 +1,5 @@
+import { Context, Effect, Schema } from "effect";
+
 import {
   type CreateUser,
   type User,
@@ -5,7 +7,6 @@ import {
   type UserIdType,
   UserNotFound,
 } from "@deno-effect/domain";
-import { Context, Effect, Schema } from "effect";
 
 const repositoryOperations = [
   "health",

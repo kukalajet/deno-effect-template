@@ -7,6 +7,6 @@ to upstream commit
 The upstream project is MIT-licensed; see `LICENSE`.
 
 `index.ts` registers only the rules enabled by this repository. The
-`no-inline-exports` rule is repository-local. The Effect rule has one local
-customization: package aliases under `@deno-effect/*` count as project-local
-imports alongside relative paths.
+`import-order` and `no-inline-exports` rules are repository-local. The Effect
+rule has one local customization: package aliases under `@deno-effect/*` count
+as project-local imports alongside relative paths.

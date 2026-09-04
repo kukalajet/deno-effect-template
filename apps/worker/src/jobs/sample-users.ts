@@ -1,5 +1,6 @@
-import { UserRepository } from "@deno-effect/application";
 import { Effect } from "effect";
+
+import { UserRepository } from "@deno-effect/application";
 
 const sampleUsersJob = Effect.gen(function* () {
   const repository = yield* UserRepository;
