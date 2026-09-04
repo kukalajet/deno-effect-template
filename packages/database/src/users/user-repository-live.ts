@@ -25,6 +25,7 @@ const isUserEmailConflict = (
   }
 
   const reason = failure.value.reason;
+
   return reason._tag === "UniqueViolation" &&
     reason.constraint === userEmailUniqueConstraint;
 };
@@ -52,6 +53,7 @@ const makeUserRepository = Effect.gen(function* () {
       const rows = yield* database.insert(users).values(input).returning().pipe(
         Effect.mapError((cause) => toUserInsertError(input.email, cause)),
       );
+
       return rows[0]!;
     },
   );
@@ -81,6 +83,7 @@ const makeUserRepository = Effect.gen(function* () {
       const query = database.select().from(users).orderBy(
         desc(users.createdAt),
       );
+
       return yield* limit === undefined ? query : query.limit(limit);
     },
     Effect.mapError(

@@ -1,5 +1,6 @@
 import { eslintCompatPlugin } from "@oxlint/plugins";
 
+import { blankLineBeforeReturnRule } from "./rules/blank-line-before-return.ts";
 import { importOrderRule } from "./rules/import-order.ts";
 import { noChainedTypeAssertionsRule } from "./rules/no-chained-type-assertions.ts";
 import { noInlineExportsRule } from "./rules/no-inline-exports.ts";
@@ -12,6 +13,7 @@ import { requireSafetyCommentForTypeAssertionRule } from "./rules/require-safety
 export default eslintCompatPlugin({
   meta: { name: "anti-slop" },
   rules: {
+    "blank-line-before-return": blankLineBeforeReturnRule,
     "import-order": importOrderRule,
     "no-chained-type-assertions": noChainedTypeAssertionsRule,
     "no-inline-exports": noInlineExportsRule,

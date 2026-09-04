@@ -16,6 +16,7 @@
     }
   ],
   "rules": {
+    "anti-slop/blank-line-before-return": "error",
     "anti-slop/import-order": "error",
     "anti-slop/no-chained-type-assertions": "error",
     "anti-slop/no-inline-exports": "error",

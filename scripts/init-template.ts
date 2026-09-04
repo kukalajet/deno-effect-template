@@ -37,6 +37,7 @@ function replaceTemplateIdentifiers(
 
 function entryUrl(directoryUrl: URL, name: string, directory: boolean): URL {
   const suffix = directory ? "/" : "";
+
   return new URL(`${encodeURIComponent(name)}${suffix}`, directoryUrl);
 }
 
@@ -88,6 +89,7 @@ async function initializeTemplate(
   projectName: string,
 ): Promise<number> {
   validateProjectName(projectName);
+
   return await replaceInDirectory(rootUrl, projectName);
 }
 

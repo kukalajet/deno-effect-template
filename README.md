@@ -127,14 +127,15 @@ and all unit/API tests in sequence and stops on the first failure.
 
 The Anti-slop profile orders imports as Node built-ins, external dependencies,
 workspace packages, parent modules, then sibling modules, and requires explicit
-export lists at the bottom of each file. Side-effect imports remain in place as
-ordering barriers. The profile also rejects chained assertions, widening
-followed by an assertion, undocumented non-const assertions, unsafe dictionary
-value types, module mocking, and importing Effect `make*` service constructors
-into runtime code. The Effect rule recognizes both relative imports and this
-workspace's `@deno-effect/*` aliases. Known-value widening is initially a
-warning. The selected upstream rules are vendored at commit `e8c4880`; other
-broader stylistic rules remain disabled.
+export lists at the bottom of each file. It also requires a blank line before a
+return that follows another statement in the same block or switch case.
+Side-effect imports remain in place as ordering barriers. The profile also
+rejects chained assertions, widening followed by an assertion, undocumented
+non-const assertions, unsafe dictionary value types, module mocking, and
+importing Effect `make*` service constructors into runtime code. The Effect rule
+recognizes both relative imports and this workspace's `@deno-effect/*` aliases.
+Known-value widening is initially a warning. The selected upstream rules are
+vendored at commit `e8c4880`; other broader stylistic rules remain disabled.
 
 ## Exact dependency policy
 

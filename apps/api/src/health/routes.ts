@@ -8,6 +8,7 @@ import { healthFailure } from "../http-errors.ts";
 const health = Effect.gen(function* () {
   const repository = yield* UserRepository;
   yield* repository.health;
+
   return HttpServerResponse.jsonUnsafe({ status: "ok", database: "ok" });
 }).pipe(Effect.catchTag("UserRepositoryError", healthFailure));
 
