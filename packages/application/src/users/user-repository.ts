@@ -1,6 +1,7 @@
 import {
   type CreateUser,
   type User,
+  UserAlreadyExists,
   type UserIdType,
   UserNotFound,
 } from "@deno-effect/domain";
@@ -23,7 +24,7 @@ export class UserRepository extends Context.Service<UserRepository, {
   readonly health: Effect.Effect<void, UserRepositoryError>;
   readonly insert: (
     input: CreateUser,
-  ) => Effect.Effect<User, UserRepositoryError>;
+  ) => Effect.Effect<User, UserAlreadyExists | UserRepositoryError>;
   readonly findById: (
     id: UserIdType,
   ) => Effect.Effect<User, UserNotFound | UserRepositoryError>;

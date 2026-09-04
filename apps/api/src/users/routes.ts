@@ -39,6 +39,14 @@ const createUser = Effect.gen(function* () {
   Effect.catchTags({
     HttpServerError: () => Effect.succeed(badRequest()),
     SchemaError: () => Effect.succeed(badRequest()),
+    UserAlreadyExists: () =>
+      Effect.succeed(
+        jsonError(
+          409,
+          "USER_ALREADY_EXISTS",
+          "A user with this email already exists",
+        ),
+      ),
     UserRepositoryError: databaseFailure,
   }),
 );

@@ -1,5 +1,9 @@
 import { UserRepository } from "@deno-effect/application";
-import { type User, UserNotFound } from "@deno-effect/domain";
+import {
+  type User,
+  UserAlreadyExists,
+  UserNotFound,
+} from "@deno-effect/domain";
 import { deepStrictEqual, strictEqual } from "node:assert/strict";
 import { Effect, Layer } from "effect";
 import { HttpRouter } from "effect/unstable/http";
@@ -15,16 +19,24 @@ const user: User = {
   createdAt,
 };
 
-const UserRepositoryTest = Layer.succeed(
+const userRepositoryTest = UserRepository.of({
+  health: Effect.void,
+  insert: (input) => Effect.succeed({ ...user, ...input }),
+  findById: (id) =>
+    id === userId
+      ? Effect.succeed(user)
+      : Effect.fail(new UserNotFound({ id })),
+  list: () => Effect.succeed([user]),
+});
+
+const UserRepositoryTest = Layer.succeed(UserRepository, userRepositoryTest);
+
+const UserRepositoryConflictTest = Layer.succeed(
   UserRepository,
   UserRepository.of({
-    health: Effect.void,
-    insert: (input) => Effect.succeed({ ...user, ...input }),
-    findById: (id) =>
-      id === userId
-        ? Effect.succeed(user)
-        : Effect.fail(new UserNotFound({ id })),
-    list: () => Effect.succeed([user]),
+    ...userRepositoryTest,
+    insert: (input) =>
+      Effect.fail(new UserAlreadyExists({ email: input.email })),
   }),
 );
 
@@ -68,6 +80,38 @@ Deno.test("POST /users rejects schema-invalid input", async () => {
       error: {
         code: "INVALID_REQUEST",
         message: "The request payload is invalid",
+      },
+    });
+  } finally {
+    await dispose();
+  }
+});
+
+Deno.test("POST /users maps an existing email to a conflict", async () => {
+  const routes = ApiRoutes.pipe(
+    HttpRouter.provideRequest(UserRepositoryConflictTest),
+  );
+  const { dispose, handler } = HttpRouter.toWebHandler(routes, {
+    disableLogger: true,
+  });
+
+  try {
+    const response = await handler(
+      new Request("http://localhost/users", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "ada@example.com",
+          displayName: "Ada Lovelace",
+        }),
+      }),
+    );
+
+    strictEqual(response.status, 409);
+    deepStrictEqual(await response.json(), {
+      error: {
+        code: "USER_ALREADY_EXISTS",
+        message: "A user with this email already exists",
       },
     });
   } finally {

@@ -35,3 +35,8 @@ export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
   "UserNotFound",
   { id: UserId },
 ) {}
+
+export class UserAlreadyExists extends Schema.TaggedError<UserAlreadyExists>()(
+  "UserAlreadyExists",
+  { email: Email },
+) {}

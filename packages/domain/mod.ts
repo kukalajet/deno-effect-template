@@ -6,6 +6,7 @@ export {
   Email,
   type Email as EmailType,
   type User,
+  UserAlreadyExists,
   UserId,
   type UserId as UserIdType,
   UserNotFound,

@@ -1,9 +1,38 @@
 import { UserRepository, UserRepositoryError } from "@deno-effect/application";
-import { UserNotFound } from "@deno-effect/domain";
+import {
+  type EmailType,
+  UserAlreadyExists,
+  UserNotFound,
+} from "@deno-effect/domain";
 import { desc, eq, sql } from "drizzle-orm";
-import { Effect, Layer, Option } from "effect";
+import type { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
+import { Cause, Effect, Layer, Option } from "effect";
+import { SqlError } from "effect/unstable/sql";
 import { Database } from "../postgres.ts";
-import { users } from "./schema.ts";
+import { userEmailUniqueConstraint, users } from "./schema.ts";
+
+const isUserEmailConflict = (
+  error: EffectDrizzleQueryError,
+): boolean => {
+  if (!Cause.isCause(error.cause)) return false;
+
+  const failure = Cause.findErrorOption(error.cause);
+  if (Option.isNone(failure) || !SqlError.isSqlError(failure.value)) {
+    return false;
+  }
+
+  const reason = failure.value.reason;
+  return reason._tag === "UniqueViolation" &&
+    reason.constraint === userEmailUniqueConstraint;
+};
+
+export const toUserInsertError = (
+  email: EmailType,
+  cause: EffectDrizzleQueryError,
+) =>
+  isUserEmailConflict(cause)
+    ? new UserAlreadyExists({ email })
+    : new UserRepositoryError({ operation: "insert", cause });
 
 const makeUserRepository = Effect.gen(function* () {
   const database = yield* Database;
@@ -17,12 +46,11 @@ const makeUserRepository = Effect.gen(function* () {
 
   const insert = Effect.fn("UserRepository.insert")(
     function* (input) {
-      const rows = yield* database.insert(users).values(input).returning();
+      const rows = yield* database.insert(users).values(input).returning().pipe(
+        Effect.mapError((cause) => toUserInsertError(input.email, cause)),
+      );
       return rows[0]!;
     },
-    Effect.mapError(
-      (cause) => new UserRepositoryError({ operation: "insert", cause }),
-    ),
   );
 
   const findById = Effect.fn("UserRepository.findById")(function* (id: string) {
