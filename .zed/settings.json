@@ -12,6 +12,7 @@
     "TypeScript": {
       "language_servers": [
         "deno",
+        "oxlint",
         "!typescript-language-server",
         "!vtsls",
         "!eslint"
