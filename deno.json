@@ -47,6 +47,8 @@
     "init": "deno run --allow-read=. --allow-write=. scripts/init-template.ts",
     "setup": "deno install --allow-scripts=npm:esbuild && deno task patch:drizzle",
     "patch:drizzle": "deno run --allow-read=node_modules --allow-write=node_modules scripts/patch-drizzle.ts",
+    "container:api": "deno run --no-prompt --frozen --cached-only --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=postgresql:5432,0.0.0.0:8000 apps/api/src/main.ts",
+    "container:worker": "deno run --no-prompt --frozen --cached-only --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=postgresql:5432 apps/worker/src/main.ts",
     "dev:api": "deno run --watch --env-file=.env --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=127.0.0.1:5432,localhost:5432,127.0.0.1:8000,localhost:8000 apps/api/src/main.ts",
     "start:api": "deno run --env-file=.env --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=127.0.0.1:5432,localhost:5432,127.0.0.1:8000,localhost:8000 apps/api/src/main.ts",
     "dev:worker": "deno run --watch --env-file=.env --allow-env=DATABASE_URL,API_HOST,API_PORT,USER,NODE_PG_FORCE_NATIVE,PGBINARY,PGOPTIONS,PGSSLMODE,PGSSLNEGOTIATION,PGCLIENT_ENCODING,PGREPLICATION --allow-net=127.0.0.1:5432,localhost:5432 apps/worker/src/main.ts",
@@ -57,8 +59,8 @@
     "db:studio": "deno run -A npm:drizzle-kit@1.0.0-rc.4 studio --config=drizzle.config.ts",
     "fmt": "deno fmt --check",
     "lint": "deno lint && deno task lint:anti-slop",
-    "lint:anti-slop": "deno run --allow-read=. --allow-env --allow-ffi oxlint .",
-    "typecheck": "deno check apps/api/src/main.ts apps/api/src/users/routes.test.ts apps/worker/src/main.ts packages/application/mod.ts packages/config/mod.ts packages/config/src/app-config.test.ts packages/database/mod.ts packages/database/src/users/user-repository-live.test.ts packages/domain/mod.ts packages/domain/src/user.test.ts drizzle.config.ts scripts/init-template.ts scripts/init-template.test.ts",
+    "lint:anti-slop": "deno run --allow-read=.,/usr/bin/ldd --allow-env --allow-ffi oxlint .",
+    "typecheck": "deno check apps/api/src/main.ts apps/api/src/users/routes.test.ts apps/worker/src/main.ts packages/application/mod.ts packages/config/mod.ts packages/config/src/app-config.test.ts packages/database/mod.ts packages/database/src/users/user-repository-live.test.ts packages/domain/mod.ts packages/domain/src/user.test.ts drizzle.config.ts scripts/init-template.ts scripts/init-template.test.ts scripts/smoke-api.ts",
     "test": "deno test",
     "check": "deno task fmt && deno task lint && deno task typecheck && deno task test"
   }

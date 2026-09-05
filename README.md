@@ -1,7 +1,9 @@
 # Deno Effect backend template
 
 Minimal, production-shaped backend workspace using Deno 2, Effect 4 RC,
-PostgreSQL, and Drizzle ORM v1's Effect-native PostgreSQL integration.
+PostgreSQL, and Drizzle ORM v1's Effect-native PostgreSQL integration. Docker
+Compose runs the API, migrations, and PostgreSQL; the worker runs on demand from
+the same application image.
 
 `apps/api` owns the long-running HTTP boundary. `apps/worker` is a finite
 process that reuses the same services. Reusable domain rules, application
@@ -19,12 +21,12 @@ layout, code-placement table, layer composition guidance, and testing examples.
 
 ## Prerequisites
 
-- Deno 2.9.6
-- Docker with Docker Compose
-- `curl` for the examples
+- Docker with the Docker Compose plugin
+- `curl` and Bash for the smoke checks
+- Deno 2.9.6 for optional native development and schema tooling
 
-No `package.json`, Node runtime, global Drizzle installation, or dotenv package
-is required.
+The image includes Deno, the locked npm dependencies, and the Drizzle patch. No
+Node runtime or Deno installation is needed on the VPS.
 
 ## Setup
 
@@ -35,32 +37,45 @@ project identity with a lowercase kebab-case name:
 deno task init my-project
 ```
 
+If you do not have Deno installed, run the initializer in Docker:
+
+```sh
+docker run --rm -v "$PWD:/app" -w /app denoland/deno:2.9.6 \
+  run --node-modules-dir=none --allow-read=. --allow-write=. \
+  scripts/init-template.ts my-project
+```
+
 The initializer updates workspace package scopes, the PostgreSQL database and
 credentials, and the PostgreSQL client application name. Run it before making
 other changes to the generated repository.
 
+Start the stack:
+
 ```sh
 cp .env.example .env
-deno task setup
-docker compose up -d --wait postgresql
+docker compose up -d --build --wait
 docker compose ps
-deno task db:migrate
 ```
 
-`deno task setup` installs the locked npm dependencies, permits only esbuild's
-trusted install script, and applies the temporary Drizzle compatibility patch
-described below.
+The build runs formatting, lint, type checks, and unit/API tests. Compose waits
+for PostgreSQL, applies the migrations, and starts the API. The database uses a
+named volume, so recreating containers preserves its data. `docker compose down`
+stops the stack and preserves that volume; adding `--volumes` deletes its data.
+
+Compose builds the internal connection URL from `POSTGRES_USER`,
+`POSTGRES_PASSWORD`, and `POSTGRES_DB`. Use URL-safe credentials, such as a hex
+password. `DATABASE_URL` in `.env` is only for native Deno tooling. The API
+listens on `0.0.0.0:8000` inside its container and is published on
+`127.0.0.1:${API_PORT:-8000}` on the host.
+
+The automatically loaded `docker-compose.override.yml` publishes PostgreSQL on
+loopback port `5432` for local tools. Set `POSTGRES_PORT` to change that host
+port. Production loads only `docker-compose.yml`, which keeps PostgreSQL
+private.
 
 ## Applications
 
-Start the API in watch mode:
-
-```sh
-deno task dev:api
-```
-
-The non-watch production-shaped command is `deno task start:api`. The API
-provides:
+The API provides:
 
 ```text
 GET  /health
@@ -79,37 +94,82 @@ curl -fsS -X POST http://127.0.0.1:8000/users \
 curl -fsS http://127.0.0.1:8000/users
 ```
 
-Run the one-shot worker:
+Run the one-shot worker and view API logs:
 
 ```sh
-deno task start:worker
+docker compose run --rm worker
+docker compose logs -f api
 ```
 
-The worker acquires the same scoped PostgreSQL/Drizzle Layers, logs a small user
-sample as structured JSON, releases the pool, and exits.
+The worker logs a small user sample, releases the PostgreSQL pool, and exits. It
+is a profile-gated service, so ordinary `docker compose up` does not run it.
+
+After changing code, rebuild and update the stack:
+
+```sh
+docker compose up -d --build --wait
+```
+
+For native watch mode, run `deno task setup`, keep only PostgreSQL running in
+Compose, and use `deno task dev:api` or `deno task dev:worker`. Ensure the
+native `DATABASE_URL` matches the database's published port and the task's
+network allowlist. The default example uses `5432` throughout.
+
+## Automatic VPS deployment
+
+GitHub Actions builds and tests the image on pull requests. Successful pushes to
+`main` publish an image to `ghcr.io/<owner>/<repository>:sha-<commit>`,
+supporting both Linux amd64 and arm64. The build uses the Deno version in
+`.dvmrc`; keep the Dockerfile's default version aligned when updating it.
+
+The optional deploy job sends Compose configuration over SSH and deploys that
+image by its immutable digest. The VPS pulls the image, runs migrations, and
+updates the API. Failed activation restores the previous image and Compose
+configuration. PostgreSQL data stays in its existing volume.
+
+Deployment stays disabled until the repository variable `VPS_DEPLOY_ENABLED` is
+set to `true` and the VPS connection settings are configured. Follow
+[the VPS setup guide](./deploy/README.md) to prepare Docker and registry access.
 
 ## Migrations and Studio
 
-The committed initial migration is the source of truth. After changing the
-Drizzle schema, generate, validate, and apply a new migration with:
+The committed initial migration is the source of truth. To generate migrations
+from schema changes, use the native Deno tools:
 
 ```sh
+deno task setup
 deno task db:generate --name=describe-change
 deno task db:check
-deno task db:migrate
 ```
 
-Launch Studio through its native Deno task:
+Rebuild the image and apply the committed migrations through Compose:
 
 ```sh
-deno task db:studio
+docker compose build
+docker compose run --rm migrate
+docker compose up -d --wait
 ```
 
-Open the local Studio URL printed by the command. Drizzle tooling is
-intentionally run with `-A`; the API and worker use explicit environment and
-network allowlists.
+Launch Studio with `deno task db:studio` against the local database port. The
+Drizzle tasks intentionally use `-A`; the API and worker use explicit
+environment and network allowlists. Container commands use the `postgresql:5432`
+service address and receive environment values from Compose.
 
 ## Quality checks
+
+The Docker build runs the checks, and the smoke script exercises the actual API,
+migrations, PostgreSQL adapter, worker, and persistent database volume:
+
+```sh
+docker build -t deno-effect-template:local .
+bash scripts/smoke-docker.sh
+```
+
+The smoke script creates an isolated Compose project with an ephemeral API port
+and deletes only its own test containers and volume when finished. CI runs the
+same script before publishing.
+
+For native checks:
 
 ```sh
 deno task fmt
@@ -171,7 +231,9 @@ published. See the upstream [RC5 fix][drizzle-fix].
 
 Drizzle Kit's launcher and Oxlint's native binding require a local npm
 dependency tree, so `nodeModulesDir` is set to `auto`. The application and
-quality checks still run through Deno and do not use `npx` or `bunx`.
+quality checks still run through Deno and do not use `npx` or `bunx`. On Linux,
+the Oxlint task also permits reading `/usr/bin/ldd` so its native binding can
+detect the system's libc implementation.
 
 The node-postgres compatibility layer probes several optional `PG*` variables,
 which explains the read-only environment names in the application tasks. An open

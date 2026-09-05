@@ -1,0 +1,6 @@
+# Local database access for native Deno commands and database tools.
+# Production explicitly loads docker-compose.yml alone.
+services:
+  postgresql:
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
