@@ -14,6 +14,7 @@ const databaseFailure = (error: UserRepositoryError) =>
     Effect.annotateLogs({
       errorTag: error._tag,
       operation: error.operation,
+      diagnostics: error.diagnostics,
     }),
     Effect.as(
       jsonError(
@@ -29,6 +30,7 @@ const healthFailure = (error: UserRepositoryError) =>
     Effect.annotateLogs({
       errorTag: error._tag,
       operation: error.operation,
+      diagnostics: error.diagnostics,
     }),
     Effect.as(
       jsonError(503, "DATABASE_UNAVAILABLE", "The database is unavailable"),

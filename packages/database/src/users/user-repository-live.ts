@@ -1,45 +1,19 @@
 import { desc, eq, sql } from "drizzle-orm";
-import type { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
-import { Cause, Effect, Layer, Option, Schema } from "effect";
-import { SqlError } from "effect/unstable/sql";
+import { Effect, Layer, Option, Schema } from "effect";
 
-import { UserRepository, UserRepositoryError } from "@deno-effect/application";
-import {
-  type EmailType,
-  UserAlreadyExists,
-  UserNotFound,
-} from "@deno-effect/domain";
+import { UserRepository } from "@deno-effect/application";
+import { UserNotFound } from "@deno-effect/domain";
 
 import { Database } from "../postgres.ts";
 
-import { userEmailUniqueConstraint, UserRowSchema, users } from "./schema.ts";
+import { UserRowSchema, users } from "./schema.ts";
+import {
+  toUserInsertError,
+  toUserRepositoryError,
+} from "./user-repository-error.ts";
 
 const decodeUserRow = Schema.decodeUnknownEffect(UserRowSchema);
 const decodeUserRows = Schema.decodeUnknownEffect(Schema.Array(UserRowSchema));
-
-const isUserEmailConflict = (
-  error: EffectDrizzleQueryError,
-): boolean => {
-  if (!Cause.isCause(error.cause)) return false;
-
-  const failure = Cause.findErrorOption(error.cause);
-  if (Option.isNone(failure) || !SqlError.isSqlError(failure.value)) {
-    return false;
-  }
-
-  const reason = failure.value.reason;
-
-  return reason._tag === "UniqueViolation" &&
-    reason.constraint === userEmailUniqueConstraint;
-};
-
-const toUserInsertError = (
-  email: EmailType,
-  cause: EffectDrizzleQueryError,
-) =>
-  isUserEmailConflict(cause)
-    ? new UserAlreadyExists({ email })
-    : new UserRepositoryError({ operation: "insert", cause });
 
 const makeUserRepository = Effect.gen(function* () {
   const database = yield* Database;
@@ -47,7 +21,7 @@ const makeUserRepository = Effect.gen(function* () {
   const health = database.execute(sql`select 1`).pipe(
     Effect.asVoid,
     Effect.mapError(
-      (cause) => new UserRepositoryError({ operation: "health", cause }),
+      (cause) => toUserRepositoryError("health", cause),
     ),
   );
 
@@ -59,7 +33,7 @@ const makeUserRepository = Effect.gen(function* () {
 
       return yield* decodeUserRow(rows[0]).pipe(
         Effect.mapError(
-          (cause) => new UserRepositoryError({ operation: "insert", cause }),
+          (cause) => toUserRepositoryError("insert", cause),
         ),
       );
     },
@@ -73,7 +47,7 @@ const makeUserRepository = Effect.gen(function* () {
       .limit(1)
       .pipe(
         Effect.mapError(
-          (cause) => new UserRepositoryError({ operation: "findById", cause }),
+          (cause) => toUserRepositoryError("findById", cause),
         ),
       );
     const user = Option.fromUndefinedOr(rows[0]);
@@ -84,7 +58,7 @@ const makeUserRepository = Effect.gen(function* () {
 
     return yield* decodeUserRow(user.value).pipe(
       Effect.mapError(
-        (cause) => new UserRepositoryError({ operation: "findById", cause }),
+        (cause) => toUserRepositoryError("findById", cause),
       ),
     );
   });
@@ -100,7 +74,7 @@ const makeUserRepository = Effect.gen(function* () {
       return yield* decodeUserRows(rows);
     },
     Effect.mapError(
-      (cause) => new UserRepositoryError({ operation: "list", cause }),
+      (cause) => toUserRepositoryError("list", cause),
     ),
   );
 
@@ -112,4 +86,4 @@ const UserRepositoryPostgresLive = Layer.effect(
   makeUserRepository,
 );
 
-export { toUserInsertError, UserRepositoryPostgresLive };
+export { UserRepositoryPostgresLive };

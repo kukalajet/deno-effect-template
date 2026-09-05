@@ -9,10 +9,8 @@ import { UserRepository } from "@deno-effect/application";
 
 import { DatabaseLive } from "../postgres.ts";
 
-import {
-  toUserInsertError,
-  UserRepositoryPostgresLive,
-} from "./user-repository-live.ts";
+import { toUserInsertError } from "./user-repository-error.ts";
+import { UserRepositoryPostgresLive } from "./user-repository-live.ts";
 
 const uniqueViolation = (constraint: string) =>
   new EffectDrizzleQueryError({
@@ -105,9 +103,10 @@ for (const operation of ["insert", "findById", "list"] as const) {
   });
 
   for (
-    const { field, row } of [
+    const { field, path, row } of [
       {
         field: "email",
+        path: "email",
         row: [
           user.id,
           "not-an-email",
@@ -117,6 +116,7 @@ for (const operation of ["insert", "findById", "list"] as const) {
       },
       {
         field: "display name",
+        path: "displayName",
         row: [user.id, user.email, "   ", user.createdAt.toISOString()],
       },
     ]
@@ -131,6 +131,10 @@ for (const operation of ["insert", "findById", "list"] as const) {
       if (failure._tag === "UserRepositoryError") {
         strictEqual(failure.operation, operation);
         strictEqual(Schema.isSchemaError(failure.cause), true);
+        deepStrictEqual(failure.diagnostics, {
+          reason: "SchemaError",
+          validationPaths: [operation === "list" ? `1.${path}` : path],
+        });
       }
     });
   }

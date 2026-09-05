@@ -60,7 +60,7 @@
     "fmt": "deno fmt --check",
     "lint": "deno lint && deno task lint:anti-slop",
     "lint:anti-slop": "deno run --allow-read=.,/usr/bin/ldd --allow-env --allow-ffi oxlint .",
-    "typecheck": "deno check apps/api/src/main.ts apps/api/src/users/routes.test.ts apps/worker/src/main.ts packages/application/mod.ts packages/config/mod.ts packages/config/src/app-config.test.ts packages/database/mod.ts packages/database/src/users/user-repository-live.test.ts packages/domain/mod.ts packages/domain/src/user.test.ts drizzle.config.ts scripts/init-template.ts scripts/init-template.test.ts scripts/smoke-api.ts",
+    "typecheck": "deno check apps/api/src/main.ts apps/api/src/http-errors.test.ts apps/api/src/users/routes.test.ts apps/worker/src/main.ts packages/application/mod.ts packages/config/mod.ts packages/config/src/app-config.test.ts packages/database/mod.ts packages/database/src/error-diagnostics.test.ts packages/database/src/users/user-repository-error.test.ts packages/database/src/users/user-repository-live.test.ts packages/domain/mod.ts packages/domain/src/user.test.ts drizzle.config.ts scripts/init-template.ts scripts/init-template.test.ts scripts/smoke-api.ts",
     "test": "deno test",
     "check": "deno task fmt && deno task lint && deno task typecheck && deno task test"
   }

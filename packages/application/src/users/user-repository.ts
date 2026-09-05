@@ -19,6 +19,11 @@ class UserRepositoryError
   extends Schema.TaggedError<UserRepositoryError>()("UserRepositoryError", {
     operation: Schema.Literals(repositoryOperations),
     cause: Schema.Defect(),
+    diagnostics: Schema.Struct({
+      reason: Schema.String,
+      code: Schema.optional(Schema.String),
+      validationPaths: Schema.optional(Schema.Array(Schema.String)),
+    }),
   }) {}
 
 class UserRepository extends Context.Service<UserRepository, {

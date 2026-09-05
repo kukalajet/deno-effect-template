@@ -176,6 +176,15 @@ Decode persisted rows with their row schema before returning them from a
 repository, including rows returned by inserts. Map decoding failures to the
 repository error so invalid stored data is reported as a server-side failure.
 
+Database adapters attach safe diagnostics to repository errors: the failure
+category, a driver error code when available, and validation field paths. HTTP
+handlers log these diagnostics while keeping error responses generic. Raw causes
+remain available for inspection; their messages and stacks can contain SQL
+parameters or stored values and must not be included in handled-error logs.
+Database-wide diagnostic extraction lives in
+`database/src/error-diagnostics.ts`; feature adapters own the mapping to their
+repository and domain errors.
+
 ## Public imports
 
 Each package exposes its supported surface through `mod.ts` and its `deno.json`
