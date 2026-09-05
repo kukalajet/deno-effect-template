@@ -1,6 +1,6 @@
 import { desc, eq, sql } from "drizzle-orm";
 import type { EffectDrizzleQueryError } from "drizzle-orm/effect-core";
-import { Cause, Effect, Layer, Option } from "effect";
+import { Cause, Effect, Layer, Option, Schema } from "effect";
 import { SqlError } from "effect/unstable/sql";
 
 import { UserRepository, UserRepositoryError } from "@deno-effect/application";
@@ -12,7 +12,10 @@ import {
 
 import { Database } from "../postgres.ts";
 
-import { userEmailUniqueConstraint, users } from "./schema.ts";
+import { userEmailUniqueConstraint, UserRowSchema, users } from "./schema.ts";
+
+const decodeUserRow = Schema.decodeUnknownEffect(UserRowSchema);
+const decodeUserRows = Schema.decodeUnknownEffect(Schema.Array(UserRowSchema));
 
 const isUserEmailConflict = (
   error: EffectDrizzleQueryError,
@@ -54,7 +57,11 @@ const makeUserRepository = Effect.gen(function* () {
         Effect.mapError((cause) => toUserInsertError(input.email, cause)),
       );
 
-      return rows[0]!;
+      return yield* decodeUserRow(rows[0]).pipe(
+        Effect.mapError(
+          (cause) => new UserRepositoryError({ operation: "insert", cause }),
+        ),
+      );
     },
   );
 
@@ -75,7 +82,11 @@ const makeUserRepository = Effect.gen(function* () {
       return yield* new UserNotFound({ id });
     }
 
-    return user.value;
+    return yield* decodeUserRow(user.value).pipe(
+      Effect.mapError(
+        (cause) => new UserRepositoryError({ operation: "findById", cause }),
+      ),
+    );
   });
 
   const list = Effect.fn("UserRepository.list")(
@@ -84,7 +95,9 @@ const makeUserRepository = Effect.gen(function* () {
         desc(users.createdAt),
       );
 
-      return yield* limit === undefined ? query : query.limit(limit);
+      const rows = yield* limit === undefined ? query : query.limit(limit);
+
+      return yield* decodeUserRows(rows);
     },
     Effect.mapError(
       (cause) => new UserRepositoryError({ operation: "list", cause }),

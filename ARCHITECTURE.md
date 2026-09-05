@@ -172,6 +172,10 @@ the domain representation when their shapes or semantics differ. Do not derive
 the public application model from a Drizzle table, and do not make an API
 consumer import database schema code to validate a request.
 
+Decode persisted rows with their row schema before returning them from a
+repository, including rows returned by inserts. Map decoding failures to the
+repository error so invalid stored data is reported as a server-side failure.
+
 ## Public imports
 
 Each package exposes its supported surface through `mod.ts` and its `deno.json`
